@@ -69,22 +69,22 @@ class TestUserEdit(BaseCase):
             "email": "vinkotov@example.com",
             "password": "1234"
         }
-        response1 = MyRequests.post("/user/login", data=payload)
-        auth_sid = self.get_cookie(response1, "auth_sid")
-        token = self.get_header(response1, "x-csrf-token")
+        response2 = MyRequests.post("/user/login", data=payload)
+        auth_sid = self.get_cookie(response2, "auth_sid")
+        token = self.get_header(response2, "x-csrf-token")
 
         # EDIT
         new_username = "new_name"
-        response2 = MyRequests.put(f"/user/{user_id}", headers={"x-csrf-token": token},
+        response3 = MyRequests.put(f"/user/{user_id}", headers={"x-csrf-token": token},
                                    cookies={"auth_sid": auth_sid}, data={"username": new_username})
-        Assertions.assert_code_status(response2, 400)
-        assert response2.content.decode("utf-8") == "Please, do not edit test users with ID 1, 2, 3, 4 or 5.", \
-            f"Unexpected response content {response2.content}"
+        Assertions.assert_code_status(response3, 400)
+        assert response3.content.decode("utf-8") == "Please, do not edit test users with ID 1, 2, 3, 4 or 5.", \
+            f"Unexpected response content {response3.content}"
 
         # CHECK CHANGES
-        response3 = MyRequests.get(f"/user/{user_id}")
-        Assertions.assert_json_has_key(response3, "username")
-        response_as_dict = response3.json()
+        response4 = MyRequests.get(f"/user/{user_id}")
+        Assertions.assert_json_has_key(response4, "username")
+        response_as_dict = response4.json()
         assert response_as_dict["username"] == "learnqa", f"Username field value was changed to {response_as_dict['username']}"
 
     def test_edit_user_email_incorrectly(self):
