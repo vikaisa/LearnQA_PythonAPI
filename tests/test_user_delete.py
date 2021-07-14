@@ -1,9 +1,19 @@
+import allure
+
 from lib.my_requests import MyRequests
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
+from allure import severity, severity_level
 
 
+@allure.link("https://playground.learnqa.ru/api/map", name="API Description")
+@allure.epic("User cases")
+@allure.feature("Deletion")
+@allure.story("As a user I want to delete my profile")
+@severity(severity_level.CRITICAL)
 class TestUserDelete(BaseCase):
+    @allure.title("Unsuccessful deletion")
+    @allure.description("This test checks an inability to delete users protected from deletion")
     def test_delete_user_that_cannot_be_deleted(self):
         # LOGIN
         payload = {
@@ -23,6 +33,8 @@ class TestUserDelete(BaseCase):
         assert response2.content.decode("utf-8") == "Please, do not delete test users with ID 1, 2, 3, 4 or 5.", \
             f"Unexpected response content {response2.content}"
 
+    @allure.title("Successful deletion")
+    @allure.description("This test checks an opportunity to delete a user's profile being logged in as this user")
     def test_delete_just_created_user(self):
         # REGISTER
         register_data = self.prepare_registration_data()
@@ -54,6 +66,8 @@ class TestUserDelete(BaseCase):
         assert response4.content.decode("utf-8") == "User not found", \
             f"Unexpected response content {response4.content}"
 
+    @allure.title("Unsuccessful deletion")
+    @allure.description("This test checks an opportunity to delete a user's profile being logged in as another user")
     def test_delete_user_being_authorized_as_another_one(self):
         # REGISTER
         register_data = self.prepare_registration_data()

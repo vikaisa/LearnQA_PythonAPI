@@ -1,45 +1,57 @@
+import allure
+
 from lib.my_requests import MyRequests
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
+from allure import severity, severity_level
 
 
+@allure.link("https://playground.learnqa.ru/api/map", name="API Description")
+@allure.epic("User cases")
+@allure.feature("Editing")
+@allure.story("As a user I want to edit my profile")
+@severity(severity_level.CRITICAL)
 class TestUserEdit(BaseCase):
-    # def test_edit_just_created_user(self):
-    #     # REGISTER
-    #     register_data = self.prepare_registration_data()
-    #     response1 = MyRequests.post("/user/", data=register_data)
-    #
-    #     Assertions.assert_code_status(response1, 200)
-    #     Assertions.assert_json_has_key(response1, "id")
-    #
-    #     email = register_data["email"]
-    #     first_name = register_data["firstName"]
-    #     password = register_data["password"]
-    #     user_id = self.get_json_value(response1, "id")
-    #
-    #     # LOGIN
-    #     login_data = {"email": email, "password": password}
-    #     response2 = MyRequests.post("/user/login", data=login_data)
-    #
-    #     auth_sid = self.get_cookie(response2, "auth_sid")
-    #     token = self.get_header(response2, "x-csrf-token")
-    #
-    #     # EDIT
-    #     new_name = "Changed Name"
-    #     response3 = MyRequests.put(f"/user/{user_id}",
-    #                                headers={"x-csrf-token": token},
-    #                                cookies={"auth_sid": auth_sid},
-    #                                data={"firstName": new_name})
-    #
-    #     Assertions.assert_code_status(response3, 200)
-    #
-    #     # GET
-    #     response4 = MyRequests.get(f"/user/{user_id}",
-    #                                headers={"x-csrf-token": token},
-    #                                cookies={"auth_sid": auth_sid})
-    #
-    #     Assertions.assert_json_value_by_name(response4, "firstName", new_name, "Wrong user name after editing")
+    @allure.title("Successful editing")
+    @allure.description("This test checks an opportunity to edit a user's profile being logged in as this user")
+    def test_edit_just_created_user(self):
+        # REGISTER
+        register_data = self.prepare_registration_data()
+        response1 = MyRequests.post("/user/", data=register_data)
 
+        Assertions.assert_code_status(response1, 200)
+        Assertions.assert_json_has_key(response1, "id")
+
+        email = register_data["email"]
+        first_name = register_data["firstName"]
+        password = register_data["password"]
+        user_id = self.get_json_value(response1, "id")
+
+        # LOGIN
+        login_data = {"email": email, "password": password}
+        response2 = MyRequests.post("/user/login", data=login_data)
+
+        auth_sid = self.get_cookie(response2, "auth_sid")
+        token = self.get_header(response2, "x-csrf-token")
+
+        # EDIT
+        new_name = "Changed Name"
+        response3 = MyRequests.put(f"/user/{user_id}",
+                                   headers={"x-csrf-token": token},
+                                   cookies={"auth_sid": auth_sid},
+                                   data={"firstName": new_name})
+
+        Assertions.assert_code_status(response3, 200)
+
+        # GET
+        response4 = MyRequests.get(f"/user/{user_id}",
+                                   headers={"x-csrf-token": token},
+                                   cookies={"auth_sid": auth_sid})
+
+        Assertions.assert_json_value_by_name(response4, "firstName", new_name, "Wrong user name after editing")
+
+    @allure.title("Unsuccessful editing")
+    @allure.description("This test checks an opportunity to edit a user's profile being unauthorized")
     def test_edit_user_being_unauthorized(self):
         # EDIT
         new_username = "new_name"
@@ -54,6 +66,8 @@ class TestUserEdit(BaseCase):
         response_as_dict = response2.json()
         assert response_as_dict["username"] == "Vitaliy", f"Username field value was changed to {response_as_dict['username']}"
 
+    @allure.title("Unsuccessful editing")
+    @allure.description("This test checks an opportunity to edit a user's profile being logged in as another user")
     def test_edit_user_being_authorized_as_another_one(self):
         # REGISTER
         register_data = self.prepare_registration_data()
@@ -87,6 +101,8 @@ class TestUserEdit(BaseCase):
         response_as_dict = response4.json()
         assert response_as_dict["username"] == "learnqa", f"Username field value was changed to {response_as_dict['username']}"
 
+    @allure.title("Unsuccessful editing")
+    @allure.description("This test checks an opportunity to edit a user's email incorrectly being logged in as this user")
     def test_edit_user_email_incorrectly(self):
         # REGISTER
         register_data = self.prepare_registration_data()
@@ -123,6 +139,8 @@ class TestUserEdit(BaseCase):
         response_as_dict = response4.json()
         assert response_as_dict["email"] == email, f"Email field value was changed to {response_as_dict['email']}"
 
+    @allure.title("Unsuccessful editing")
+    @allure.description("This test checks an opportunity to edit a user's first name incorrectly being logged in as this user")
     def test_edit_user_first_name_incorrectly(self):
         # REGISTER
         register_data = self.prepare_registration_data()

@@ -1,9 +1,19 @@
+import allure
+
 from lib.my_requests import MyRequests
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
+from allure import severity, severity_level
 
 
+@allure.link("https://playground.learnqa.ru/api/map", name="API Description")
+@allure.epic("User cases")
+@allure.feature("Getting user's info")
+@allure.story("As a user I want to get my profile's info")
+@severity(severity_level.CRITICAL)
 class TestUserGet(BaseCase):
+    @allure.title("Getting profile's info as unauthorized user")
+    @allure.description("This test checks an opportunity to get certain user's profile info being unauthorized")
     def test_get_user_details_not_auth(self):
         response = MyRequests.get("/user/2")
         Assertions.assert_json_has_key(response, "username")
@@ -11,6 +21,8 @@ class TestUserGet(BaseCase):
         Assertions.assert_json_has_no_key(response, "firstName")
         Assertions.assert_json_has_no_key(response, "lastName")
 
+    @allure.title("Getting profile's info being logged in as this user")
+    @allure.description("This test checks an opportunity to get all user's profile info being logged in as this user")
     def test_get_user_details_auth_as_same_user(self):
         payload = {
             "email": "vinkotov@example.com",
@@ -29,6 +41,8 @@ class TestUserGet(BaseCase):
         expected_fields = ["username", "email", "firstName", "lastName"]
         Assertions.assert_json_has_keys(response2, expected_fields)
 
+    @allure.title("Getting profile's info being logged in as another user")
+    @allure.description("This test checks an opportunity to get a particular kind of user's profile info being logged in as another user")
     def test_get_user_details_auth_as_another_user(self):
         payload = {
             "email": "vinkotov@example.com",
